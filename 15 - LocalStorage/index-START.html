@@ -23,12 +23,75 @@
       <input type="text" name="item" placeholder="Item Name" required>
       <input type="submit" value="+ Add Item">
     </form>
+    <button class="deleteItems">Delete List</button>
+    <button class="uncheckItems">Uncheck List</button>
   </div>
 
 <script>
   const addItems = document.querySelector('.add-items');
   const itemsList = document.querySelector('.plates');
-  const items = [];
+  const items = JSON.parse(localStorage.getItem('items')) || []; ///retrieve from local storage or empty if not exist
+  const deleteItems = document.querySelector('.deleteItems');
+  const uncheckItems = document.querySelector('.uncheckItems');
+
+  function addItem(e){
+    e.preventDefault(); // to prevent page from refreshing because submit using form will automaticall reload page
+    const text = this.querySelector('[name=item]').value;
+    const item ={
+      text, //text: text
+      done: false
+    }
+    items.push(item);  //push into array
+    populateList(items, itemsList) //populate the list
+    localStorage.setItem('items', JSON.stringify(items)); //save into local storage
+    this.reset(); //to reset the form value in page
+    
+  }
+
+  function populateList(plates = [], platesList){ //function to recreate list
+    platesList.innerHTML = plates.map((plate, i) => {
+      return  ` 
+          <li>
+            <input type="checkbox" data-index=${i} id="item${i}" ${plate.done ? 'checked' : ''} />
+          <label for="item${i}">${plate.text}</label>
+          </li>
+          `;
+    }).join('');
+  };
+ 
+  function toggleDone(e){
+    if(!e.target.matches('input')) return; //skipp unless its input
+    const el = e.target;
+    const index = el.dataset.index;
+
+    items[index].done = !items[index].done;
+    localStorage.setItem('items', JSON.stringify(items));
+    populateList(items, itemsList); // to populate list from the  local stored item
+
+  }
+
+  function clearList(){
+    localStorage.removeItem('items'); //remove key in local storage
+    items.splice(0, items.length); //clear constant array
+    itemsList.innerHTML = ``; //remove list
+  }
+
+  function uncheckAll(){
+    items.forEach(item => {
+      item.done = false;      
+    });
+    localStorage.setItem('items', JSON.stringify(items));
+    populateList(items, itemsList);
+    console.log('uncheck');
+  }
+
+  itemsList.addEventListener('click', toggleDone)
+
+  addItems.addEventListener('submit', addItem);
+  deleteItems.addEventListener('click', clearList);
+  uncheckItems.addEventListener('click', uncheckAll);
+
+  populateList(items, itemsList); // to populate  list from the local stored item
 
 </script>
 
