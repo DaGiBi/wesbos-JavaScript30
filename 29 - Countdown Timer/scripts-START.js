@@ -44,9 +44,9 @@ function startTime(){
 }
 
 buttons.forEach(button => button.addEventListener('click', startTime));
-document.customForm.addEventListener('submit', function(e){
+document.customForm.addEventListener('submit', function(e){ // select form 
     e.preventDefault();
     const mins = this.minutes.value;
     timer(mins * 60);
     this.reset();
-})
+});
